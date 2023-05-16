@@ -11,9 +11,10 @@ namespace StartingMultiTenantLib
             Option = option;
         }
 
-        public StartingMultiTenantLibOptionBuilder UseRequest(string baseUrl) {
+        public StartingMultiTenantLibOptionBuilder UseRequest(string baseUrl,string clientId,string clientSecret) {
             Option.EnableRequest = true;
-
+            Option.ClientId = clientId;
+            Option.ClientSecret = clientSecret;
             if (!string.IsNullOrEmpty(baseUrl)) {
                 if (baseUrl.EndsWith('/')) {
                     baseUrl = baseUrl.Substring(0, baseUrl.Length - 1);
