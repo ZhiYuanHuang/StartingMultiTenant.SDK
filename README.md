@@ -7,6 +7,12 @@
 (1)StartingMutilTenantClient
 (2)ServiceMutiTenantStore
 
+### 安装
+
+#### 使用nuget 安装
+
+[StartingMultiTenantLib](https://www.nuget.org/packages/StartingMultiTenantLib/)
+
 ### 调用示例
 
 #### 依赖注入方式
