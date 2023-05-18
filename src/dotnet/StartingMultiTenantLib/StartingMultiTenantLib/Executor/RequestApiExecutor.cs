@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using StartingMultiTenantLib.Executor;
 using System;
 using System.Collections.Generic;
@@ -39,15 +40,16 @@ namespace StartingMultiTenantLib
         }
 
         public virtual async Task<TenantDbConnsDto> GetTenantDbConns(string tenantDomain, string tenantIdentifier, string serviceIdentifier) {
-            string tokne =await getToken();
+            string token =await getToken();
 
             string queryStr = $"tenantDomain={tenantDomain}&tenantIdentifier={tenantIdentifier}";
             if (!string.IsNullOrEmpty(serviceIdentifier)) {
-                queryStr += $"serviceIdentifier={serviceIdentifier}";
+                queryStr += $"&serviceIdentifier={serviceIdentifier}";
             }
 
             string url = string.Concat(_getTenantDbConnUrl,"?", queryStr);
             HttpRequestMessage httpRequestMessage= new HttpRequestMessage(HttpMethod.Get, url);
+            httpRequestMessage.Headers.Add("Authorization",$"Bearer {token}");
             var resp= await _httpClient.SendAsync(httpRequestMessage);
             resp.EnsureSuccessStatusCode();
 
@@ -62,7 +64,7 @@ namespace StartingMultiTenantLib
         }
 
         public async Task<CreateTenantResultDto> CreateTenant(string tenantDomain, string tenantIdentifier, List<string> createDbScriptNameList=null, string tenantName = null, string description = null) {
-            string tokne = await getToken();
+            string token = await getToken();
 
             AppRequestDto<CreateTenantDto> appRequestDto = new AppRequestDto<CreateTenantDto>() {
                 Data = new CreateTenantDto() {
@@ -73,8 +75,11 @@ namespace StartingMultiTenantLib
                     CreateDbScripts = createDbScriptNameList != null ? createDbScriptNameList:(new List<string>()),
                 }
             };
+            var jsonContent= JsonContent.Create(appRequestDto);
 
             HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post,_createTenantUrl);
+            httpRequestMessage.Content = jsonContent;
+            httpRequestMessage.Headers.Add("Authorization", $"Bearer {token}");
             var resp=await _httpClient.SendAsync(httpRequestMessage);
             resp.EnsureSuccessStatusCode();
             string respContent=await resp.Content.ReadAsStringAsync();

@@ -61,7 +61,11 @@ namespace StartingMultiTenantLib
             try {
                 tenantDbConnsDto = await _startingMutilTenantClient.GetTenantDbConns(tenantDomain,identifier,_option?.ServiceIdentifier);
                 if (_option?.CacheMilliSec > 0) {
-                    MemoryCacheHelper.Set(tenantCacheKey,_option.CacheMilliSec,tenantDbConnsDto);
+                    if (tenantDbConnsDto != null) {
+                        MemoryCacheHelper.Set(tenantCacheKey, _option.CacheMilliSec, tenantDbConnsDto);
+                    } else {
+                        MemoryCacheHelper.Set(tenantCacheKey, 100, tenantDbConnsDto);
+                    }
                 }
             } catch(Exception ex) {
                 _logger.LogError($"TryGetByIdentifierAsync raise error,ex:{ex.Message}");

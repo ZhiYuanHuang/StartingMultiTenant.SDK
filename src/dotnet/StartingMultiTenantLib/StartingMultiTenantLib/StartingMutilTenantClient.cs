@@ -1,4 +1,5 @@
-﻿using StartingMultiTenantLib.Executor;
+﻿using Microsoft.Extensions.Logging;
+using StartingMultiTenantLib.Executor;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,6 +10,7 @@ namespace StartingMultiTenantLib
     public class StartingMutilTenantClient
     {
         private readonly StartingMultiTenantClientOption _option;
+        private readonly ILogger<StartingMutilTenantClient> _logger;
         private IReadTenantExecutor _readTenantExecutor = null;
         private IWriteTenantExecutor _writeTenantExecutor = null;
         private readonly object _lockObj = new object();
@@ -23,7 +25,15 @@ namespace StartingMultiTenantLib
 
         public async Task<CreateTenantResultDto> CreateTenant(string tenantDomain, string tenantIdentifier, List<string> createDbScriptNameList = null, string tenantName = null, string description = null) {
             var requestExecutor = getWriteTenantExecutor();
-            return await requestExecutor.CreateTenant(tenantDomain,tenantIdentifier,createDbScriptNameList,tenantName,description);
+
+            try {
+                var result= await requestExecutor.CreateTenant(tenantDomain, tenantIdentifier, createDbScriptNameList, tenantName, description);
+                return result;
+            } catch(Exception ex) {
+                _logger?.LogError(ex, "CreateTenant raise error");
+                return new CreateTenantResultDto() { Success=false,ErrMsg="invoke error"};
+            }
+            
         }
 
         private IReadTenantExecutor getReadTenantExecutor() {

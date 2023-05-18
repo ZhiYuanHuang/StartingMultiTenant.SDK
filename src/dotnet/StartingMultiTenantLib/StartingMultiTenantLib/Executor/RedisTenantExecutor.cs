@@ -11,14 +11,16 @@ namespace StartingMultiTenantLib
     {
         private readonly string _connStr;
         private readonly bool _useRequestApi;
-        private readonly ConnectionMultiplexer _pubConnection = null;
-        private readonly IDatabase _pubDb;
+
+        private ConnectionMultiplexer _pubConnection = null;
+        private IDatabase _pubDb;
 
         public bool IsConnected { get => _pubConnection?.IsConnected ?? false; }
 
         private const string _redisHashKeyTemplate = "{0}:{1}:DbConns";
-
+         
         private readonly ILogger<RedisTenantExecutor> _logger;
+        private readonly object _lockObj;
 
         public RedisTenantExecutor(string connStr,ILogger<RedisTenantExecutor> logger,bool useRequestApi,
             string baseUrl=null, string clientId = null, string clientSecret = null) 
@@ -26,11 +28,11 @@ namespace StartingMultiTenantLib
             _logger = logger;
             _connStr = connStr;
             _useRequestApi = useRequestApi;
-            _pubConnection = ConnectionMultiplexer.Connect(_connStr);
-            _pubDb = _pubConnection.GetDatabase();
+            _lockObj = new object();
         }
 
         public override async Task<TenantDbConnsDto> GetTenantDbConns(string tenantDomain, string tenantIdentifier, string serviceIdentifier) {
+            
             var result = await getFromRedis(tenantDomain, tenantIdentifier, serviceIdentifier);
             if (result == null && _useRequestApi) {
                 return await base.GetTenantDbConns(tenantDomain, tenantIdentifier, serviceIdentifier);
@@ -38,10 +40,25 @@ namespace StartingMultiTenantLib
             return result;
         }
 
+        private ConnectionMultiplexer createConnection() {
+            if (_pubConnection == null) {
+                lock (_lockObj) {
+                    if (_pubConnection == null) {
+                        _pubConnection = ConnectionMultiplexer.Connect(_connStr);
+                        _pubDb = _pubConnection.GetDatabase();
+                    }
+                }
+            }
+
+            return _pubConnection;
+        }
+
         private async Task<TenantDbConnsDto> getFromRedis(string tenantDomain, string tenantIdentifier, string serviceIdentifier) {
-            string redisHashKey = string.Format(tenantDomain,tenantIdentifier);
+            string redisHashKey = string.Format(_redisHashKeyTemplate,tenantDomain, tenantIdentifier);
             TenantDbConnsDto tenantDbConnsDto = null;
             try {
+                createConnection();
+
                 var hashEntryArr= await _pubDb.HashGetAllAsync(redisHashKey);
                 if (hashEntryArr.Length == 0) {
                     tenantDbConnsDto = new TenantDbConnsDto() {

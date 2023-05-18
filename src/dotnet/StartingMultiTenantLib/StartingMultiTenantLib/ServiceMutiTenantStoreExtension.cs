@@ -7,8 +7,12 @@ namespace StartingMultiTenantLib
 {
     public static class ServiceMutiTenantStoreExtension
     {
-        public static IServiceCollection AddServiceMutiTenantStore(this IServiceCollection services, ServiceMutiTenantStoreOption option) {
-            services.AddSingleton<ServiceMutiTenantStoreOption>((provider) =>option);
+        public static IServiceCollection AddServiceMutiTenantStore(this IServiceCollection services, Action<ServiceMutiTenantStoreOption> optionAction) {
+            services.AddSingleton<ServiceMutiTenantStoreOption>((provider) => {
+                ServiceMutiTenantStoreOption option = new ServiceMutiTenantStoreOption();
+                optionAction(option);
+                return option;
+            });
             services.AddScoped<ContextTenantDomain>();
             return services.AddTransient<ServiceMutiTenantStore>();
         }
