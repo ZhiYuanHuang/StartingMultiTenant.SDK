@@ -1,4 +1,5 @@
-﻿using System;
+﻿using StartingMultiTenantLib.Executor;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,28 +9,45 @@ namespace StartingMultiTenantLib
     public class StartingMutilTenantClient
     {
         private readonly StartingMultiTenantClientOption _option;
-        private IRequestTenantExecutor _requestTenantExecutor = null;
+        private IReadTenantExecutor _readTenantExecutor = null;
+        private IWriteTenantExecutor _writeTenantExecutor = null;
         private readonly object _lockObj = new object();
         public StartingMutilTenantClient(StartingMultiTenantClientOption clientOption) {
             _option = clientOption;
-            
         }
 
         public async Task<TenantDbConnsDto> GetTenantDbConns(string tenantDomain, string tenantIdentifier, string serviceIdentifier) {
-            var requestExecutor = getRequestTenantExecutor();
+            var requestExecutor = getReadTenantExecutor();
             return await requestExecutor.GetTenantDbConns(tenantDomain,tenantIdentifier,serviceIdentifier);
         }
 
-        private IRequestTenantExecutor getRequestTenantExecutor() {
-            if (_requestTenantExecutor == null) {
+        public async Task<CreateTenantResultDto> CreateTenant(string tenantDomain, string tenantIdentifier, List<string> createDbScriptNameList = null, string tenantName = null, string description = null) {
+            var requestExecutor = getWriteTenantExecutor();
+            return await requestExecutor.CreateTenant(tenantDomain,tenantIdentifier,createDbScriptNameList,tenantName,description);
+        }
+
+        private IReadTenantExecutor getReadTenantExecutor() {
+            if (_readTenantExecutor == null) {
                 lock (_lockObj) {
-                    if (_requestTenantExecutor == null) {
-                        _requestTenantExecutor = _option.ResolveExecutor();
+                    if (_readTenantExecutor == null) {
+                        _readTenantExecutor = _option.ResolveReadExecutor();
                     }
                 }
             }
 
-            return _requestTenantExecutor;
+            return _readTenantExecutor;
+        }
+
+        private IWriteTenantExecutor getWriteTenantExecutor() {
+            if (_writeTenantExecutor == null) {
+                lock (_lockObj) {
+                    if (_writeTenantExecutor == null) {
+                        _writeTenantExecutor = _option.ResolveWriteExecutor();
+                    }
+                }
+            }
+
+            return _writeTenantExecutor;
         }
     }
 }

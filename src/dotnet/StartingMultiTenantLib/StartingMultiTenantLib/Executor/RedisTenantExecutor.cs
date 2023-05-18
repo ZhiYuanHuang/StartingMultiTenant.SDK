@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace StartingMultiTenantLib
 {
-    internal class RedisTenantExecutor : RequestApiExecutor, IRequestTenantExecutor
+    internal class RedisTenantExecutor : RequestApiExecutor, IReadTenantExecutor
     {
         private readonly string _connStr;
         private readonly bool _useRequestApi;
@@ -18,9 +18,12 @@ namespace StartingMultiTenantLib
 
         private const string _redisHashKeyTemplate = "{0}:{1}:DbConns";
 
-        public RedisTenantExecutor(string connStr,ILogger<IRequestTenantExecutor> logger,bool useRequestApi,
+        private readonly ILogger<RedisTenantExecutor> _logger;
+
+        public RedisTenantExecutor(string connStr,ILogger<RedisTenantExecutor> logger,bool useRequestApi,
             string baseUrl=null, string clientId = null, string clientSecret = null) 
             : base(logger, baseUrl, clientId, clientSecret) {
+            _logger = logger;
             _connStr = connStr;
             _useRequestApi = useRequestApi;
             _pubConnection = ConnectionMultiplexer.Connect(_connStr);

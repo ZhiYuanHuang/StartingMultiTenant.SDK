@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 namespace StartingMultiTenantLib
 {
-    internal class K8sSecretTenantExecutor : RequestApiExecutor, IRequestTenantExecutor
+    internal class K8sSecretTenantExecutor : RequestApiExecutor, IReadTenantExecutor
     {
-        public K8sSecretTenantExecutor(ILogger<IRequestTenantExecutor> logger, string baseUrl, string clientId, string clientSecret) 
+        private readonly ILogger<K8sSecretTenantExecutor> _logger;
+        public K8sSecretTenantExecutor(ILogger<K8sSecretTenantExecutor> logger, string baseUrl, string clientId, string clientSecret) 
             : base(logger, baseUrl, clientId, clientSecret) {
+            _logger = logger;
         }
 
         public override Task<TenantDbConnsDto> GetTenantDbConns(string tenantDomain, string tenantIdentifier, string serviceIdentifier) {

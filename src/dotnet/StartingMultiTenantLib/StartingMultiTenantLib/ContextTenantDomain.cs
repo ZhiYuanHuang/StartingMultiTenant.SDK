@@ -4,11 +4,8 @@ using System.Text;
 
 namespace StartingMultiTenantLib
 {
-    public enum EnumTargetType
+    public class ContextTenantDomain
     {
-        RequestApi=0,
-        Redis=1,
-        K8sSecret=2,
-        Custom=3,
+        public string TenantDomain { get; set; }
     }
 }

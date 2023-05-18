@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using StartingMultiTenantLib.Executor;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -8,28 +9,31 @@ using System.Threading.Tasks;
 
 namespace StartingMultiTenantLib
 {
-    public class RequestApiExecutor: IRequestTenantExecutor
+    internal class RequestApiExecutor: IReadTenantExecutor,IWriteTenantExecutor
     {
         private const string RelateGetTenantDbConnUrl = "/api/tenantcenter/GetDbConn";
         private const string RelateGetTokenUrl = "/api/connect/token";
+        private const string RelateCreateTenant = "/api/tenantcenter/create";
 
         private readonly string _clientId;
         private readonly string _clientSecret;
         private readonly string _baseUrl;
         private readonly string _getTenantDbConnUrl = string.Empty;
         private readonly string _getTokenUrl = string.Empty;
+        private readonly string _createTenantUrl = string.Empty;
         private readonly string _cacheKey_token=string.Empty;
 
         private readonly HttpClient _httpClient;
-        protected readonly ILogger<IRequestTenantExecutor> _logger;
+        private readonly ILogger<RequestApiExecutor> _logger;
 
-        public RequestApiExecutor(ILogger<IRequestTenantExecutor> logger,string baseUrl, string clientId, string clientSecret) { 
+        public RequestApiExecutor(ILogger<RequestApiExecutor> logger,string baseUrl, string clientId, string clientSecret) { 
             _clientId= clientId;
             _clientSecret= clientSecret;
             _cacheKey_token = string.Format("StartingMultiTenant_Token_{0}",clientId);
             _baseUrl = baseUrl;
             _getTenantDbConnUrl = string.Concat(_baseUrl, RelateGetTenantDbConnUrl);
             _getTokenUrl = string.Concat(_baseUrl,RelateGetTokenUrl);
+            _createTenantUrl = string.Concat(_baseUrl,RelateCreateTenant);
             _httpClient = new HttpClient();
             _logger = logger;
         }
@@ -55,6 +59,31 @@ namespace StartingMultiTenantLib
             }
 
             return appResp.Result;
+        }
+
+        public async Task<CreateTenantResultDto> CreateTenant(string tenantDomain, string tenantIdentifier, List<string> createDbScriptNameList=null, string tenantName = null, string description = null) {
+            string tokne = await getToken();
+
+            AppRequestDto<CreateTenantDto> appRequestDto = new AppRequestDto<CreateTenantDto>() {
+                Data = new CreateTenantDto() {
+                    TenantDomain = tenantDomain,
+                    TenantIdentifier = tenantIdentifier,
+                    TenantName = tenantName,
+                    Description=description,
+                    CreateDbScripts = createDbScriptNameList != null ? createDbScriptNameList:(new List<string>()),
+                }
+            };
+
+            HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post,_createTenantUrl);
+            var resp=await _httpClient.SendAsync(httpRequestMessage);
+            resp.EnsureSuccessStatusCode();
+            string respContent=await resp.Content.ReadAsStringAsync();
+            var appResp = Newtonsoft.Json.JsonConvert.DeserializeObject<AppResponseDto>(respContent);
+            if(appResp==null || appResp.ErrorCode!=0) {
+                return new CreateTenantResultDto() { Success=false,ErrMsg=appResp?.ErrorMsg};
+            }
+
+            return new CreateTenantResultDto() { Success=true};
         }
 
         private async Task<string> getToken() {
@@ -83,5 +112,6 @@ namespace StartingMultiTenantLib
 
             return appResp.Result;
         }
+
     }
 }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace StartingMultiTenantLib
 {
-    public interface IRequestTenantExecutor
+    public interface IReadTenantExecutor
     {
         Task<TenantDbConnsDto> GetTenantDbConns(string tenantDomain,string tenantIdentifier,string serviceIdentifier);
     }

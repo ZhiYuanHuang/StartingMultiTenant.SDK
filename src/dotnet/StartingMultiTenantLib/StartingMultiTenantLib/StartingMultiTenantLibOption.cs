@@ -8,7 +8,8 @@ namespace StartingMultiTenantLib
     {
         public bool EnableRequest { get; set; }
         
-        public EnumTargetType TargetType { get; set; } = EnumTargetType.RequestApi;
+        public EnumTargetType ReadTargetType { get; set; } = EnumTargetType.RequestApi;
+        public EnumTargetType WriteTargetType { get; set; } = EnumTargetType.RequestApi;
         internal string ClientId { get; set; }
         internal string ClientSecret { get; set; }
         internal string RequestBaseUrl { get; set; }
