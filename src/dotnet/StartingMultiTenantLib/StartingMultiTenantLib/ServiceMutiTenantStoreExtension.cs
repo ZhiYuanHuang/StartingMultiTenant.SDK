@@ -20,16 +20,17 @@ namespace StartingMultiTenantLib
             return services;
         }
 
-        public static FinbuckleMultiTenantBuilder<TenantDbConnsDto> WithStore(this FinbuckleMultiTenantBuilder<TenantDbConnsDto> finbuckleMultiTenantBuilder, Action<ServiceMutiTenantStoreOption> optionAction, ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
+        public static FinbuckleMultiTenantBuilder<TenantDbConnsDto> WithMultiTenant(this IServiceCollection services, Action<ServiceMutiTenantStoreOption> optionAction, ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
         {
-            finbuckleMultiTenantBuilder.Services.AddSingleton<ServiceMutiTenantStoreOption>((provider) => {
+            services.AddSingleton<ServiceMutiTenantStoreOption>((provider) => {
                 ServiceMutiTenantStoreOption option = new ServiceMutiTenantStoreOption();
                 optionAction(option);
                 return option;
             });
-            finbuckleMultiTenantBuilder.Services.AddScoped<ContextTenantDomain>();
-            finbuckleMultiTenantBuilder.WithStore<ServiceMutiTenantStore>(serviceLifetime);
-            return finbuckleMultiTenantBuilder;
+            services.AddScoped<ContextTenantDomain>();
+            return services.AddMultiTenant<TenantDbConnsDto>()
+                .WithStore<ServiceMutiTenantStore>(serviceLifetime)
+                .WithStrategy<TenantResolveStrategy>(ServiceLifetime.Singleton, "__tenant__.*");
         }
     }
 }
