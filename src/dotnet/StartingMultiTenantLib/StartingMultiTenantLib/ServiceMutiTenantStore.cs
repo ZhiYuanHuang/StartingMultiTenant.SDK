@@ -1,5 +1,6 @@
 ﻿using Finbuckle.MultiTenant;
 using Microsoft.Extensions.Logging;
+using StartingMultiTenantLib.Const;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -60,6 +61,10 @@ namespace StartingMultiTenantLib
 
             try {
                 tenantDbConnsDto = await _startingMutilTenantClient.GetTenantDbConns(tenantDomain,identifier,_option?.ServiceIdentifier);
+                if (tenantDbConnsDto.NoExist && _option.UseEmptySourceWhenNoExistTenant) {
+                    tenantDbConnsDto = await _startingMutilTenantClient.GetTenantDbConns(SMTConsts.Sys_TenantDomain, SMTConsts.Empty_Tenant, _option?.ServiceIdentifier);
+                }
+
                 if (_option?.CacheMilliSec > 0) {
                     if (tenantDbConnsDto != null) {
                         MemoryCacheHelper.Set(tenantCacheKey, _option.CacheMilliSec, tenantDbConnsDto);

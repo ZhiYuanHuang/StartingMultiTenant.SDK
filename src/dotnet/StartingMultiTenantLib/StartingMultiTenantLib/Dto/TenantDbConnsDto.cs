@@ -15,6 +15,7 @@ namespace StartingMultiTenantLib
     {
         public string TenantDomain { get; set; }
         public string TenantIdentifier { get; set; }
+        public bool NoExist { get; set; }
         public List<TenantDbConnDto> InnerDbConnList { get; set; }
         public List<TenantDbConnDto> ExternalDbConnList { get; set; }
         public string? Id { get; set; }

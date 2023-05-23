@@ -61,12 +61,16 @@ namespace StartingMultiTenantLib
 
                 var hashEntryArr= await _pubDb.HashGetAllAsync(redisHashKey);
                 if (hashEntryArr.Length == 0) {
-                    tenantDbConnsDto = new TenantDbConnsDto() {
-                        TenantDomain = tenantDomain,
-                        TenantIdentifier = tenantIdentifier,
-                        InnerDbConnList = new List<TenantDbConnDto>() ,
-                        ExternalDbConnList=new List<TenantDbConnDto>()
-                    };
+                    ////注释冗余redis不存在，回源查找
+                    //tenantDbConnsDto = new TenantDbConnsDto() {
+                    //    NoExist = true,
+                    //    TenantDomain = tenantDomain,
+                    //    TenantIdentifier = tenantIdentifier,
+                    //    InnerDbConnList = new List<TenantDbConnDto>(),
+                    //    ExternalDbConnList = new List<TenantDbConnDto>()
+                    //};
+
+
                 } else {
                     tenantDbConnsDto = new TenantDbConnsDto() {
                         TenantDomain = tenantDomain,

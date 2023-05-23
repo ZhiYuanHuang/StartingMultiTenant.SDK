@@ -15,7 +15,6 @@ namespace StartingMultiTenantLib
     public class TenantResolveStrategy : IMultiTenantStrategy
     {
         private readonly string regex;
-
         public TenantResolveStrategy(string template) {
             if (template == SMTConsts.TenantToken) {
                 template = template.Replace(SMTConsts.TenantToken, @"(?<identifier>.+)");
@@ -58,6 +57,7 @@ namespace StartingMultiTenantLib
                 throw new MultiTenantException(null,
                     new ArgumentException($"\"{nameof(context)}\" type must be of type HttpContext", nameof(context)));
 
+            ContextTenantDomain contextTenantDomain = null;
             string? identifier = null;
             var resolveResult= await resolveFromHeader(httpContext.Request);
             if (!resolveResult.Item1) {
@@ -69,7 +69,7 @@ namespace StartingMultiTenantLib
             }
 
             identifier = resolveResult.Item3;
-            var contextTenantDomain = httpContext.RequestServices.GetRequiredService<ContextTenantDomain>();
+            contextTenantDomain = httpContext.RequestServices.GetRequiredService<ContextTenantDomain>();
             contextTenantDomain.TenantDomain = resolveResult.Item2;
 
             return identifier;
