@@ -5,7 +5,7 @@ VisualStudioVersion = 17.4.33103.184
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StartingMultiTenantLib", "StartingMultiTenantLib\StartingMultiTenantLib.csproj", "{885DA633-E758-44E1-8731-FCC6D0E78364}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StartingMultiTenantLib.Test", "StartingMultiTenantLib.Test\StartingMultiTenantLib.Test.csproj", "{523456D5-5EA0-430F-9E77-8A73F03A2F50}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StartingMultiTenantLib.Test", "StartingMultiTenantLib.Test\StartingMultiTenantLib.Test.csproj", "{523456D5-5EA0-430F-9E77-8A73F03A2F50}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

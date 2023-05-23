@@ -28,6 +28,7 @@ namespace StartingMultiTenantLib
                 return option;
             });
             services.AddScoped<ContextTenantDomain>();
+            services.AddScoped<ContextTenantInfo>();
             return services.AddMultiTenant<TenantDbConnsDto>()
                 .WithStore<ServiceMutiTenantStore>(serviceLifetime)
                 .WithStrategy<TenantResolveStrategy>(ServiceLifetime.Singleton, "__tenant__.*");
