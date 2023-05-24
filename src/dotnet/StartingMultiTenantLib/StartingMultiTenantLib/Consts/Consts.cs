@@ -17,10 +17,10 @@ namespace StartingMultiTenantLib.Const
 
         public const string AuthorPolicy_SuperAdmin = "TenantSuperPolicy";
         //服务超级管理权限
-        public const string Service_Super_Admin_Aud = "servicesuperadmin";
+        public const string Service_Super_Admin_Scope = "tenantservice.superadmin";
 
         public const string AuthorPolicy_TenantAdmin = "TenantAdminPolicy";
         //服务单租户管理权限
-        public const string Service_Tenant_Admin_Aud = "servicetenantadmin";
+        public const string Service_Tenant_Admin_Scope = "tenantservice.admin";
     }
 }
