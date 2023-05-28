@@ -15,12 +15,12 @@ namespace StartingMultiTenantLib.Const
         //系统用domain
         public const string Sys_TenantDomain = "sys.com";
 
-        public const string AuthorPolicy_SuperAdmin = "TenantSuperPolicy";
+        public const string AuthorPolicy_SuperAdmin = "TenantSuperAdminPolicy";
         //服务超级管理权限
         public const string Service_Super_Admin_Scope = "tenantservice.superadmin";
 
+        //服务单租户管理员认证策略
         public const string AuthorPolicy_TenantAdmin = "TenantAdminPolicy";
-        //服务单租户管理权限
-        public const string Service_Tenant_Admin_Scope = "tenantservice.admin";
+        public const string Service_Admin_Role = "tenantserviceadmin";
     }
 }
