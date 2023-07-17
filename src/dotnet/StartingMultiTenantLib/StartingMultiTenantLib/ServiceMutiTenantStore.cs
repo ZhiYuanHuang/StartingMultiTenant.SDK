@@ -73,6 +73,7 @@ namespace StartingMultiTenantLib
                     }
                 }
             } catch(Exception ex) {
+
                 _logger.LogError($"TryGetByIdentifierAsync raise error,ex:{ex.Message}");
             }
 

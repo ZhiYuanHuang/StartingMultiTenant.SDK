@@ -15,7 +15,9 @@ namespace StartingMultiTenantLib
     public class TenantResolveStrategy : IMultiTenantStrategy
     {
         private readonly string regex;
-        public TenantResolveStrategy(string template) {
+        private readonly ServiceMutiTenantStoreOption _option;
+        public TenantResolveStrategy(string template, ServiceMutiTenantStoreOption option) {
+            _option= option;
             if (template == SMTConsts.TenantToken) {
                 template = template.Replace(SMTConsts.TenantToken, @"(?<identifier>.+)");
             } else {
@@ -64,7 +66,12 @@ namespace StartingMultiTenantLib
                 resolveResult = await resolveFromHost(httpContext.Request);
 
                 if (!resolveResult.Item1) {
-                    return null;
+                    if (_option.UseEmptySourceWhenNoExistTenant) {
+                        resolveResult = new Tuple<bool, string, string>(true, SMTConsts.Sys_TenantDomain, SMTConsts.Empty_Tenant);
+                    } else {
+                        return null;
+                    }
+                    
                 }
             }
 
